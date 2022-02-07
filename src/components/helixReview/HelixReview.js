@@ -23,7 +23,9 @@ const HelixReview = ({
     tooltipDelay = 300,
     visitorId,
     initialValue,
+    helixRatingsConfig,
 }) => {
+    const { disableDataFromLocalStorage } = helixRatingsConfig || {};
     const [rating, setRating] = useState();
     const [initialRating, setInitialRating] = useState();
     const [avgRating, setAvgRating] = useState(5);
@@ -32,10 +34,14 @@ const HelixReview = ({
     const [displayReviewComp, setDisplayReviewComp] = useState(false);
 
     useEffect(() => {
+        if (helixRatingsConfig) setDisplayReviewComp(true);
         // init
         const localData = getLocalStorage(reviewPath);
         let localDataTotalReviews = 0;
-        if (localData) {
+        if (
+            (!disableDataFromLocalStorage  && localData) ||
+            (helixRatingsConfig && !disableDataFromLocalStorage && localData)
+        ) {
             setRating(localData.rating);
             setTotalReviews(localData.totalReviews);
             localDataTotalReviews = localData.totalReviews;
@@ -46,8 +52,12 @@ const HelixReview = ({
                 rating: localData ? localData.rating : undefined,
             });
 
-        // eslint-disable-next-line no-use-before-define
-        getHelixData(localDataTotalReviews, !!localData);
+        if (
+            !disableDataFromLocalStorage ||
+            (helixRatingsConfig && !disableDataFromLocalStorage)
+        )
+            // eslint-disable-next-line no-use-before-define
+            getHelixData(localDataTotalReviews, !!localData);
     }, []);
 
     const getHelixData = (localDataTotalReviews = 0, hasLocalData = false) => {
@@ -118,26 +128,27 @@ const HelixReview = ({
 
     return (
         <>
-            {displayReviewComp && (
-                <Review
-                    averageRating={avgRating}
-                    clickTimeout={clickTimeout}
-                    commentThreshold={commentThreshold}
-                    hideTitleOnReload={hideTitleOnReload}
-                    initialRating={initialRating}
-                    maxRating={maxRating}
-                    onRatingHover={onRatingHover}
-                    onRatingSet={onRatingSet}
-                    setAverageRating={setAvgRating}
-                    setTotalReviews={setTotalReviews}
-                    displayRatingSummary={displayRatingSummary}
-                    staticRating={rating}
-                    strings={strings}
-                    tooltipDelay={tooltipDelay}
-                    totalReviews={totalReviews}
-                    initialValue={initialValue}
-                />
-            )}
+            {/* {displayReviewComp && ( */}
+            <Review
+                averageRating={avgRating}
+                clickTimeout={clickTimeout}
+                commentThreshold={commentThreshold}
+                hideTitleOnReload={hideTitleOnReload}
+                initialRating={initialRating}
+                maxRating={maxRating}
+                onRatingHover={onRatingHover}
+                onRatingSet={onRatingSet}
+                setAverageRating={setAvgRating}
+                setTotalReviews={setTotalReviews}
+                displayRatingSummary={displayRatingSummary}
+                staticRating={rating}
+                strings={strings}
+                tooltipDelay={tooltipDelay}
+                totalReviews={totalReviews}
+                initialValue={initialValue}
+                helixRatingsConfig={helixRatingsConfig}
+            />
+            {/* )} */}
         </>
     );
 };

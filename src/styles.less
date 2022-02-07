@@ -81,6 +81,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 15px;
+}
+
+.ajs-helix-review .hlx-Review-ratingFields,
+.ajs-helix-review .hlx-Review-commentFields {
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.ajs-helix-review .ajs-hlx-review-commentsTitle {
+    margin-top: 20px;
 }
 
 .hlx-Review-ratingFields {
@@ -192,6 +203,10 @@
     }
 }
 
+.ajs-helix-review .hlx-Review-commentFields textarea#rating-comments {
+    width: 100%;
+}
+
 .hlx-ReviewStats {
     display: none;
     font-size: 16px;
@@ -247,6 +262,21 @@
             margin-left: 19px;
         }
     }
+
+    .ajs-helix-review .hlx-ReviewWrapper {
+        flex-direction: column;
+    }
+
+    .ajs-helix-review .hlx-ReviewWrapper .hlx-Review {
+        flex-direction: column;
+        margin-left: 20px;
+        margin-right: 20px;
+        width: 100%;
+    }
+    .ajs-helix-review .hlx-Review-commentFields {
+        margin-top: 10px;
+        margin-left: 0px;
+    }
 }
 
 .tooltip {
@@ -297,4 +327,39 @@
         visibility: visible;
         z-index: @tooltipZIndex;
     }
+}
+
+.hlx-additional-questions-title {
+    margin-top: 15px;
+}
+
+.hlx-additional-questions-parent {
+    flex-direction: column;
+    margin-top: 15px;
+}
+
+.hlx-additional-questions-item {
+    display: flex;
+    margin-top: 10px;
+}
+// without sepctrum
+.ajs-hlx-btn-container {
+    display: flex;
+    margin-top: 20px;
+}
+
+.ajs-hlx-additional-question-label {
+    margin-left: 10px;
+}
+
+.ajs-hlx-additional-question-chckbox {
+    height: 21px;
+}
+
+.hlx-review-btn {
+    align-self: flex-end;
+    margin-left: auto;
+}
+.hlx-subTitle {
+    width: 100%;
 }

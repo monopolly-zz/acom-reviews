@@ -1,6 +1,6 @@
 import React from 'react';
 
-const HelixButtonGroup = ({ buttonGroupProps, displayToggleSwitch, handleSubmit }) => {
+const HelixButtonGroup = ({ buttonGroupProps, displayToggleSwitch, handleSubmit, toggleClassicViewer }) => {
     const {
         primary: { btnStyle, labelStyle, btnText } = {},
         secondary: {
@@ -21,20 +21,20 @@ const HelixButtonGroup = ({ buttonGroupProps, displayToggleSwitch, handleSubmit 
     } = buttonGroupProps;
     return (
         <div className="ajs-hlx-btn-container">
-            {displayToggleSwitch ? (
+            { displayToggleSwitch ? (
                 <label className={switchParentStyle}>
                     <input
                         type="checkbox"
                         className={inputStyle}
                         role="switch"
-                        aria-checked="false"
                         value=""
+                        onChange={toggleClassicViewer}
                     />
                     <span className={switchStyle} />
                     <span className={switchLabelStyle}>{switchText}</span>
                 </label>
             ) : null}
-            {btnTextSecondary ? (
+            { btnTextSecondary ? (
                 <button
                     type="button"
                     onClick={btnCallBackSecondary()}
@@ -43,7 +43,7 @@ const HelixButtonGroup = ({ buttonGroupProps, displayToggleSwitch, handleSubmit 
                     <span className={labelStyleSecondary}>{btnTextSecondary}</span>
                 </button>
             ) : null}
-            {btnText ? (
+            { btnText ? (
                 <button
                     type="button"
                     onClick={handleSubmit}

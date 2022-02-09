@@ -1,8 +1,10 @@
 import React from 'react';
 
+
 const FeedbackAdditionalQuestions = ({
     additionalFeedbackTitle,
     additionalFeedbackQuestions,
+    selectAdditionalQuestion
 }) => {
     return (
         <>
@@ -16,6 +18,7 @@ const FeedbackAdditionalQuestions = ({
                 {additionalFeedbackQuestions.map((item) => (
                     <div className="hlx-additional-questions-item">
                         <input
+                            onClick={selectAdditionalQuestion}
                             type="checkbox"
                             className="ajs-hlx-additional-question-chckbox"
                             value={item}

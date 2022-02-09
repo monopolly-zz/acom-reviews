@@ -54,6 +54,8 @@ function Review({
     const [rating, setRating] = useState(0);
     const [selectedRating, setSelectedRating] = useState(0);
     const [timeoutId, setTimeoutId] = useState(null);
+    const [feedbackQuestions, setFeedbackQuestions] = useState("");
+    const [classicViewerEnabled, setClassicViewerEnabled] = useState()
 
     const beforeUnloadCallback = useRef(null);
     const {
@@ -86,6 +88,10 @@ function Review({
             setRating(initialRating);
         }
     }, [initialRating]);
+
+    const selectAdditionalQuestion = (e) => {
+        setFeedbackQuestions(e.target.value + "," + feedbackQuestions)
+    }
 
     const handleCommentChange = (commentText) => {
         setComment(commentText);
@@ -176,12 +182,21 @@ function Review({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onRatingSet({ rating, comment: sanitizeComment(comment), totalReviews });
+        onRatingSet({ 
+            rating, 
+            comment: sanitizeComment(comment), 
+            useClassicViewer: classicViewerEnabled,
+            totalReviews, 
+            feedbackQuestions: feedbackQuestions ? feedbackQuestions : null });
         setDisplayThankYou(true);
         if (btnCallBack) {
             btnCallBack();
         }
     };
+
+    const toggleClassicViewer = () => {
+        setClassicViewerEnabled(!classicViewerEnabled)
+    }
 
     return (
         <>
@@ -213,6 +228,7 @@ function Review({
                                     additionalFeedbackQuestions={
                                         additionalFeedbackQuestions
                                     }
+                                    selectAdditionalQuestion={selectAdditionalQuestion}
                                 />
                             )}
 
@@ -249,6 +265,7 @@ function Review({
                     displayToggleSwitch={displayToggleSwitch}
                     handleSubmit={handleSubmit}
                     buttonGroupProps={buttonGroupProps}
+                    toggleClassicViewer={toggleClassicViewer}
                 />
             ) : null}
         </>

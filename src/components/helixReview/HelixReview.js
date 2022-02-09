@@ -105,6 +105,8 @@ const HelixReview = ({
         rating: newRating,
         comment,
         totalReviews: updatedTotalReviews,
+        feedbackQuestions,
+        useClassicViewer
     }) => {
         // When onRatingSet is called, totalReviews hasn't updated yet as it's async
         setLocalStorage(reviewPath, {
@@ -121,6 +123,8 @@ const HelixReview = ({
             postUrl,
             reviewPath,
             visitorId,
+            feedbackQuestions,
+            useClassicViewer
         });
 
         if (onRatingSetCallback) onRatingSetCallback({ rating: newRating, comment });
@@ -128,7 +132,7 @@ const HelixReview = ({
 
     return (
         <>
-            {/* {displayReviewComp && ( */}
+            {displayReviewComp && (
             <Review
                 averageRating={avgRating}
                 clickTimeout={clickTimeout}
@@ -148,7 +152,7 @@ const HelixReview = ({
                 initialValue={initialValue}
                 helixRatingsConfig={helixRatingsConfig}
             />
-            {/* )} */}
+            )}
         </>
     );
 };

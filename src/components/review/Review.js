@@ -4,6 +4,8 @@ import sanitizeComment from '../../utils/sanitizeComment';
 import Comments from './Comments';
 import Ratings from './Ratings';
 import RatingSummary from './RatingSummary';
+import FeedbackAdditionalQuestions from './FeedbackAdditionalQuestions';
+import HelixButtonGroup from './HelixButtonGroup';
 
 const BEFORE_UNLOAD_EVENT = 'beforeunload';
 
@@ -39,9 +41,12 @@ function Review({
     strings = defaultStrings,
     staticRating,
     totalReviews,
+    helixRatingsConfig,
 }) {
     const [comment, setComment] = useState('');
     const [displayComments, setDisplayComments] = useState(false);
+    const [displayAdditionalQuestions, setDisplayAdditionalQuestions] = useState(false);
+    const [displayToggleSwitch, setDisplayToggleSwitch] = useState(false);
     const [displayThankYou, setDisplayThankYou] = useState(false);
     const [displayTitle, setDisplayTitle] = useState(true);
     const [totalHasBeenUpdated, setTotalHasBeenUpdated] = useState(false);
@@ -49,22 +54,44 @@ function Review({
     const [rating, setRating] = useState(0);
     const [selectedRating, setSelectedRating] = useState(0);
     const [timeoutId, setTimeoutId] = useState(null);
+    const [feedbackQuestions, setFeedbackQuestions] = useState("");
+    const [classicViewerEnabled, setClassicViewerEnabled] = useState()
 
     const beforeUnloadCallback = useRef(null);
+    const {
+        hideTitle,
+        defaultCommentEnabled,
+        additionalFeedbackTitle,
+        additionalFeedbackQuestions,
+        displayAdditionalQuestionsEnabled,
+        buttonGroupProps,
+        subTitle,
+    } = helixRatingsConfig || {};
+
+    const { primary: { btnCallBack } = {} } = buttonGroupProps || {};
 
     useEffect(() => {
         if (staticRating) {
             setRating(staticRating);
             setIsInteractive(false);
-            if (hideTitleOnReload) setDisplayTitle(false);
+            if (hideTitleOnReload) {
+                setDisplayTitle(false);
+            }
         }
-    }, [staticRating]);
+    }, [staticRating, displayTitle]);
 
     useEffect(() => {
+        if (defaultCommentEnabled) {
+            setDisplayComments(true);
+        }
         if (initialRating) {
             setRating(initialRating);
         }
     }, [initialRating]);
+
+    const selectAdditionalQuestion = (e) => {
+        setFeedbackQuestions(e.target.value + "," + feedbackQuestions)
+    }
 
     const handleCommentChange = (commentText) => {
         setComment(commentText);
@@ -123,9 +150,7 @@ function Review({
             setTotalReviews(updatedTotalReviews);
         }
 
-        setAverageRating(
-            addToAverage(newRating, Number(averageRating), updatedTotalReviews)
-        );
+        setAverageRating(addToAverage(newRating, averageRating, updatedTotalReviews));
 
         if (!isKeyboardSelection && newRating > commentThreshold && !displayComments) {
             handleClickAboveCommentThreshold(newRating, updatedTotalReviews);
@@ -133,7 +158,14 @@ function Review({
         }
 
         // No star has been selected yet
-        if (selectedRating === 0) setDisplayComments(newRating <= commentThreshold);
+        if (selectedRating === 0) {
+            // Enable comments section on the basis of ratings only if defaultCommentEnabled is false, else show the comments panel.
+            if (!defaultCommentEnabled) setDisplayComments(newRating <= commentThreshold);
+            setDisplayAdditionalQuestions(
+                additionalFeedbackQuestions && newRating <= commentThreshold
+            );
+            setDisplayToggleSwitch(newRating <= commentThreshold);
+        }
 
         setSelectedRating(newRating);
         setRating(newRating);
@@ -150,55 +182,93 @@ function Review({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onRatingSet({ rating, comment: sanitizeComment(comment), totalReviews });
+        onRatingSet({ 
+            rating, 
+            comment: sanitizeComment(comment), 
+            useClassicViewer: classicViewerEnabled,
+            totalReviews, 
+            feedbackQuestions: feedbackQuestions ? feedbackQuestions : null });
         setDisplayThankYou(true);
+        if (btnCallBack) {
+            btnCallBack();
+        }
     };
 
+    const toggleClassicViewer = () => {
+        setClassicViewerEnabled(!classicViewerEnabled)
+    }
+
     return (
-        <div className="hlx-ReviewWrapper">
-            {!displayThankYou && (
-                <>
-                    {displayTitle && (
-                        <h3 className="hlx-reviewTitle">{strings.reviewTitle}</h3>
-                    )}
-                    <form className="hlx-Review" onSubmit={handleSubmit}>
-                        <Ratings
-                            count={5}
-                            isInteractive={isInteractive}
-                            onClick={handleRatingClick}
-                            onRatingHover={onRatingHover}
-                            rating={rating}
-                            starsLegend={strings.starsLegend || strings.reviewTitle}
-                            starString={strings.star}
-                            starStringPlural={strings.starPlural}
-                            tooltips={strings.tooltips}
-                            tooltipDelay={tooltipDelay}
-                        />
-                        {displayComments && (
-                            <Comments
-                                label={strings.commentLabel}
-                                feedback={comment}
-                                handleCommentChange={handleCommentChange}
-                                placeholderText={strings.placeholder}
-                                sendCtaText={strings.sendCta}
+        <>
+            <div className="hlx-ReviewWrapper">
+                {{ subTitle } ? <div className="hlx-subTitle">{subTitle}</div> : null}
+                {!displayThankYou && (
+                    <>
+                        {!hideTitle && displayTitle && (
+                            <h3 className="hlx-reviewTitle">{strings.reviewTitle}</h3>
+                        )}
+                        <form className="hlx-Review" onSubmit={handleSubmit}>
+                            <Ratings
+                                count={5}
+                                isInteractive={isInteractive}
+                                onClick={handleRatingClick}
+                                onRatingHover={onRatingHover}
+                                rating={rating}
+                                starsLegend={strings.starsLegend || strings.reviewTitle}
+                                starString={strings.star}
+                                starStringPlural={strings.starPlural}
+                                tooltips={strings.tooltips}
+                                tooltipDelay={tooltipDelay}
+                            />
+
+                            {(displayAdditionalQuestionsEnabled ||
+                                displayAdditionalQuestions) && (
+                                <FeedbackAdditionalQuestions
+                                    additionalFeedbackTitle={additionalFeedbackTitle}
+                                    additionalFeedbackQuestions={
+                                        additionalFeedbackQuestions
+                                    }
+                                    selectAdditionalQuestion={selectAdditionalQuestion}
+                                />
+                            )}
+
+                            {displayComments && (
+                                <Comments
+                                    label={strings.commentLabel}
+                                    feedback={comment}
+                                    handleCommentChange={handleCommentChange}
+                                    placeholderText={
+                                        helixRatingsConfig ? '' : strings.placeholder
+                                    }
+                                    sendCtaText={strings.sendCta}
+                                    helixRatingsConfig={helixRatingsConfig}
+                                />
+                            )}
+                        </form>
+                        {displayRatingSummary && (
+                            <RatingSummary
+                                averageRating={averageRating}
+                                maxRating={maxRating}
+                                totalReviews={totalReviews}
+                                reviewString={strings.review}
+                                reviewStringPlural={strings.reviewPlural}
                             />
                         )}
-                    </form>
-                    {displayRatingSummary && (
-                        <RatingSummary
-                            averageRating={averageRating}
-                            maxRating={maxRating}
-                            totalReviews={totalReviews}
-                            reviewString={strings.review}
-                            reviewStringPlural={strings.reviewPlural}
-                        />
-                    )}
-                </>
-            )}
-            {displayThankYou && (
-                <div className="hlx-submitResponse">{strings.thankYou}</div>
-            )}
-        </div>
+                    </>
+                )}
+                {displayThankYou && (
+                    <div className="hlx-submitResponse">{strings.thankYou}</div>
+                )}
+            </div>
+            {buttonGroupProps ? (
+                <HelixButtonGroup
+                    displayToggleSwitch={displayToggleSwitch}
+                    handleSubmit={handleSubmit}
+                    buttonGroupProps={buttonGroupProps}
+                    toggleClassicViewer={toggleClassicViewer}
+                />
+            ) : null}
+        </>
     );
 }
 

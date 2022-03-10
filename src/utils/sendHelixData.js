@@ -9,6 +9,8 @@ const sendHelixData = ({
     postUrl,
     reviewPath,
     visitorId,
+    feedbackQuestions,
+    useClassicViewer
 } = {}) => {
     const isDev = !!(postAuth && sheet);
 
@@ -16,6 +18,10 @@ const sendHelixData = ({
         { name: 'Timestamp', value: getDate() },
         { name: 'Rating', value: rating },
     ];
+
+    if (feedbackQuestions) {
+        data.push({ name: 'Options', value: feedbackQuestions });
+    }
 
     if (comment) {
         data.push({ name: 'Comment', value: comment });
@@ -27,6 +33,10 @@ const sendHelixData = ({
 
     if (visitorId) {
         data.push({ name: 'VisitorId', value: visitorId });
+    }
+
+    if (useClassicViewer !== undefined) {
+        data.push({ name: 'ClassicViewerEnabled', value: useClassicViewer})
     }
 
     const body = { data };
